@@ -14,6 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardName: Salt
   cardDescription: Blehhh
-  cardImage: {fileID: 21300000, guid: b71fac9bfa1ffd743827404cd2762834, type: 3}
+  cardImage: {fileID: -7143692724702679029, guid: a165e44a752de6346bba8acb16e798e7, type: 3}
   category: 1
   cardPrefab: {fileID: 5273985579158004675, guid: c9772c58c32dcf1449a7804bfc3eb38e, type: 3}

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using DG.Tweening;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class DeckManager : MonoBehaviour
@@ -86,6 +87,7 @@ public class DeckManager : MonoBehaviour
                 cardComp.FlipCard(false); // Show back
                 cardGO.transform.position = pilePos.position;
                 cardGO.transform.rotation = pilePos.rotation;
+                cardComp.isUsable = false;
 
                 // Optional: slight random rotation or offset
                 cardGO.transform.DORotate(new Vector3(0, 180 + Random.Range(-5f, 5f), 0), 0.3f).SetEase(Ease.OutBack);
@@ -115,12 +117,14 @@ public class DeckManager : MonoBehaviour
     public void DrawFromDeck(CardCategory category = CardCategory.Ingredient)
     {
         GameManager.instance.drawsText.text = $"{RemainingDraws()} / 8";
+
         if (cardsDrawnThisRound >= cardsPerRound)
         {
             Debug.Log("You have already drawn 8 cards.");
             return;
         }
 
+        // Get the appropriate data deck (CardType list)
         List<CardType> deck = category switch
         {
             CardCategory.Ingredient => ingredientDeck,
@@ -130,18 +134,7 @@ public class DeckManager : MonoBehaviour
             _ => null
         };
 
-        if (deck == null || deck.Count == 0)
-        {
-            Debug.Log("No cards left in this deck.");
-            return;
-        }
-
-        var cardType = deck[Random.Range(0, deck.Count)];
-        currentHand.Add(cardType);
-        deck.Remove(cardType);
-        cardsDrawnThisRound++;
-
-        // Determine the pile position based on the card's category
+        // Get the pile position for visual reference
         Transform pilePos = category switch
         {
             CardCategory.Ingredient => ingredientPilePos,
@@ -151,49 +144,70 @@ public class DeckManager : MonoBehaviour
             _ => null
         };
 
-        if (pilePos != null)
+        // Ensure the deck and pile position are valid
+        if (deck == null || deck.Count == 0 || pilePos == null)
         {
-            // Instantiate visual card
-            GameObject cardGO = Instantiate(cardPrefab, pilePos); // Parent to the pile transform
-            cardGO.transform.position = pilePos.position;
-            cardGO.transform.rotation = pilePos.rotation;
-            cardGO.transform.localScale = Vector3.one * 0.75f;
-
-            Card cardComponent = cardGO.GetComponent<Card>();
-            cardComponent.FlipCard(true); // Show the back of the card
-            cardComponent.cardType = cardType;
-            cardComponent.SetCardImages();
-
-            // Animate movement to hand
-            cardGO.transform.DOMove(hand.position + new Vector3(Random.Range(-2f, 2f), 0, 0), 0.5f)
-                .SetEase(Ease.OutQuad).OnComplete(() =>
-                {
-                    cardGO.transform.SetParent(hand); // Reparent to the hand after animation
-                    cardComponent.isUsable = true;
-                });
+            Debug.Log("No cards left in this deck or invalid pile position.");
+            return;
         }
-        else
-        {
-            Debug.LogWarning("No valid pile position found for the card's category.");
-        }
+
+        // Grab the topmost card (first card) from the pile
+        GameObject cardGO = pilePos.GetChild(0).gameObject; // Assuming the first child is the card
+        Card cardComponent = cardGO.GetComponent<Card>();
+
+        // Get the corresponding CardType (the one linked to the topmost card)
+        CardType cardType = cardComponent.cardType;
+
+        cardComponent.FlipCard(true); // Show the front side of the card
+        // Add the card to the player's hand and remove it from the deck (since it's now drawn)
+        currentHand.Add(cardType);
+        deck.Remove(cardType); // Remove from the deck
+        cardsDrawnThisRound++; // Increment the drawn cards count
+
+        // Set the card visuals (images, etc.)
+        cardComponent.SetCardImages(); // Update visuals
+
+        // Move the card to the player's hand
+        cardGO.transform.DOMove(hand.position + new Vector3(Random.Range(-2f, 2f), 0, 0), 0.5f)
+            .SetEase(Ease.OutQuad).OnComplete(() =>
+            {
+                cardGO.transform.SetParent(hand); // Reparent to the hand after animation
+                cardComponent.isUsable = true; // Mark the card as usable
+            });
+
+        // Optionally, you can disable the card's interaction with the pile
     }
+
+
     public void DiscardCard(CardType card)
     {
-        if (currentHand.Contains(card))
+        // Find the correct card GameObject in the hand
+        foreach (Transform child in hand)
         {
-            // Remove the card from the current hand
-            currentHand.Remove(card);
+            Card cardComponent = child.GetComponent<Card>();
+            if (cardComponent != null && cardComponent.cardType == card)
+            {
+                // Animate the card to the discard pile
+                child.DOMove(Vector3.zero, 0.5f).SetEase(Ease.OutQuad).OnComplete(() =>
+                {
+                    // Remove the card from the visual hand (this removes it from the hand game object)
+                    Destroy(child.gameObject); // Destroy the GameObject from the hand
 
-            // Add the card to the discard pile
-            discardedCards.Add(card);
+                    // Remove the card from the data structure (current hand)
+                    currentHand.Remove(cardComponent.cardType);
 
-            Debug.Log($"Card {card.cardName} has been discarded.");
-        }
-        else
-        {
-            Debug.LogWarning("The card is not in the current hand and cannot be discarded.");
+                    // Add the card to the discard pile
+                    discardedCards.Add(cardComponent.cardType);
+                });
+
+                // Optionally, you could break the loop here if you only expect to discard one card
+                break;
+            }
         }
     }
+
+
+
 
     private void Shuffle(List<CardType> deck)
     {

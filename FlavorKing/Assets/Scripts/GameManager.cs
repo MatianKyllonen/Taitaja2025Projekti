@@ -10,13 +10,15 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI flavorPointsText;
     public CardEffectManager cardEffectManager;
     public TextMeshProUGUI drawsText;
+    public TextMeshProUGUI recipeNameText;
+    public TextMeshProUGUI recipeRequirementsText;
 
     public int currentFlavorPoints = 0;
     public int cardsPlayed = 0;
     public int maxCardsPerRound = 8;
 
     public DeckManager deckManager;
-    public List<RecipeData> allRecipes;
+    public List<CardType> allCardTypes;  // Updated to use all card types for generating recipes
 
     private HashSet<string> usedIngredients = new();
     private HashSet<string> usedTools = new();
@@ -31,6 +33,46 @@ public class GameManager : MonoBehaviour
             Destroy(gameObject);
     }
 
+    private void Start()
+    {
+        StartRound();
+    }
+
+    // Generate a random recipe
+    private void GenerateRandomRecipe()
+    {
+        // Randomly select a recipe name and required flavor points (just an example)
+        string randomRecipeName = "Dish " + Random.Range(1, 1000);
+        int randomFlavorPoints = Random.Range(150, 500); // Random flavor points
+
+        // Randomly select an ingredient, technique, seasoning, and tool
+        string randomIngredient = GetRandomCardOfCategory(CardCategory.Ingredient)?.cardName ?? "Unknown Ingredient";
+        string randomTechnique = GetRandomCardOfCategory(CardCategory.Technique)?.cardName ?? "";
+        string randomTool = GetRandomCardOfCategory(CardCategory.Tool)?.cardName ?? "";
+        string randomSeasoning = GetRandomCardOfCategory(CardCategory.Seasoning)?.cardName ?? "";
+
+        // Create the new random recipe
+        currentRecipe = ScriptableObject.CreateInstance<RecipeData>();
+        currentRecipe.recipeName = randomRecipeName;
+        currentRecipe.flavorPointsRequired = randomFlavorPoints;
+        currentRecipe.requiredIngredient = randomIngredient;
+        currentRecipe.requiredTechnique = randomTechnique;
+        currentRecipe.requiredTool = randomTool;
+        currentRecipe.preferredSeasoning = randomSeasoning;
+    }
+
+    // Get a random card from a specific category
+    private CardType GetRandomCardOfCategory(CardCategory category)
+    {
+        // Filter cards by category
+        List<CardType> filteredCards = allCardTypes.FindAll(card => card.category == category);
+        if (filteredCards.Count > 0)
+        {
+            return filteredCards[Random.Range(0, filteredCards.Count)];
+        }
+        return null;
+    }
+
     public void StartRound()
     {
         currentFlavorPoints = 0;
@@ -43,14 +85,23 @@ public class GameManager : MonoBehaviour
 
         deckManager.BeginRound();
 
-        if (currentRecipe == null || allRecipes.Count == 0)
+        if (allCardTypes == null || allCardTypes.Count == 0)
         {
-            Debug.LogWarning("No recipes available!");
+            Debug.LogWarning("No cards available to generate recipes!");
             return;
         }
 
-        currentRecipe = allRecipes[Random.Range(0, allRecipes.Count)];
-        flavorPointsText.text = currentFlavorPoints.ToString();
+        // Generate a random recipe
+        GenerateRandomRecipe();
+
+        // Display the recipe information
+        recipeNameText.text = $"Recipe: {currentRecipe.recipeName}";
+        recipeRequirementsText.text =
+            $"Ingredient: {currentRecipe.requiredIngredient}\n" +
+            (string.IsNullOrEmpty(currentRecipe.requiredTechnique) ? "" : $"Technique: {currentRecipe.requiredTechnique}\n") +
+            (string.IsNullOrEmpty(currentRecipe.requiredTool) ? "" : $"Tool: {currentRecipe.requiredTool}\n") +
+            (string.IsNullOrEmpty(currentRecipe.preferredSeasoning) ? "" : $"Preferred Seasoning: {currentRecipe.preferredSeasoning}\n") +
+            $"Flavor Needed: {currentRecipe.flavorPointsRequired}";
 
         Debug.Log($"Round started! Recipe: {currentRecipe.recipeName}. Required flavor: {currentRecipe.flavorPointsRequired}");
     }
@@ -108,6 +159,8 @@ public class GameManager : MonoBehaviour
 
         cardsPlayed++;
 
+        type.ExecuteEffect(cardEffectManager);
+
         if (cardsPlayed >= maxCardsPerRound)
         {
             EndRound();
@@ -118,7 +171,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void AddFlavorPoints(int amount)
+    public void AddFlavorPoints(int amount)
     {
         currentFlavorPoints += amount;
         flavorPointsText.text = currentFlavorPoints.ToString();

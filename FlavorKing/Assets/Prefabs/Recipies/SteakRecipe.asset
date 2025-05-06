@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 95a00460d63f6af4982f44412b688ffe, type: 3}
-  m_Name: Steak
+  m_Name: SteakRecipe
   m_EditorClassIdentifier: 
   recipeName: Steak
   flavorPointsRequired: 250

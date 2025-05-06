@@ -35,7 +35,7 @@ public class Card : MonoBehaviour
 
     private void Update()
     {
-        isUsable = button.interactable; 
+        button.interactable = isUsable; // Enable or disable the button based on isUsable
     }
 
     public void SetCardImages()
@@ -125,7 +125,6 @@ public class Card : MonoBehaviour
     public void FlipCard(bool showFront)
     {
         // Disable interaction during the flip
-        isUsable = false;
 
         // Animate the card flipping
         transform.DORotate(new Vector3(0, 90, 0), 0.2f).SetEase(Ease.InCubic).OnComplete(() =>
@@ -138,7 +137,6 @@ public class Card : MonoBehaviour
             transform.DORotate(new Vector3(0, 0, 0), 0.2f).SetEase(Ease.OutCubic).OnComplete(() =>
             {
                 // Re-enable interaction after the flip
-                isUsable = true;
             });
         });
     }

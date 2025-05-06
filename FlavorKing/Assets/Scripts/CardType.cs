@@ -17,6 +17,20 @@ public class CardType : ScriptableObject
     // Execute the effect using the CardEffectManager
     public void ExecuteEffect(CardEffectManager effectManager)
     {
-        cardEffect?.Invoke(effectManager);
+        switch (cardName)
+        {
+            case "Salt": effectManager.ApplySaltEffect(); break;
+            case "Dressimg": effectManager.ApplySweetEffect(); break;
+            case "Chili": effectManager.ApplySpicyEffect(); break;
+            case "Boil": effectManager.ApplyBoilingEffect(); break;
+            case "Fry": effectManager.ApplyFryingEffect(); break;
+            case "Chop": effectManager.ApplyChopEffect(); break;
+            case "Knife": effectManager.ApplyKnifeEffect(); break;
+            case "Pot": effectManager.ApplyPotEffect(); break;
+            case "Pan": effectManager.ApplyPanEffect(); break;
+            default: Debug.Log("No effect assigned for: " + cardName); break;
+        }
     }
+
 }
+

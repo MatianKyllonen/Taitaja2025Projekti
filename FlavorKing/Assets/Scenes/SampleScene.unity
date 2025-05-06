@@ -152,12 +152,28 @@ MonoBehaviour:
   allCards:
   - {fileID: 11400000, guid: 625bb22dcb2b4cf4bb0ac6a0334b55a2, type: 2}
   - {fileID: 11400000, guid: 625bb22dcb2b4cf4bb0ac6a0334b55a2, type: 2}
-  - {fileID: 11400000, guid: 23212ddb5a9c8554c99a167c3b0ba82c, type: 2}
   - {fileID: 11400000, guid: f91cb19a772db0747979f170faec8b70, type: 2}
   - {fileID: 11400000, guid: f91cb19a772db0747979f170faec8b70, type: 2}
+  - {fileID: 11400000, guid: 4aecd175bd58fe84f8d78d58b9fbcc96, type: 2}
+  - {fileID: 11400000, guid: 4aecd175bd58fe84f8d78d58b9fbcc96, type: 2}
+  - {fileID: 11400000, guid: c8ec6cd5375a7c14bbe731d35aec2e4f, type: 2}
+  - {fileID: 11400000, guid: c8ec6cd5375a7c14bbe731d35aec2e4f, type: 2}
+  - {fileID: 11400000, guid: 31db0146235357b479af22e68894a3b0, type: 2}
+  - {fileID: 11400000, guid: 31db0146235357b479af22e68894a3b0, type: 2}
   - {fileID: 11400000, guid: 04e9a9c67b0f30d4880e7e783ece9437, type: 2}
+  - {fileID: 11400000, guid: 04e9a9c67b0f30d4880e7e783ece9437, type: 2}
+  - {fileID: 11400000, guid: 4404000e8fccaeb40beebd41497224da, type: 2}
+  - {fileID: 11400000, guid: 8a95d6e1356020546be6278be7ee0f78, type: 2}
+  - {fileID: 11400000, guid: 23212ddb5a9c8554c99a167c3b0ba82c, type: 2}
+  - {fileID: 11400000, guid: 4404000e8fccaeb40beebd41497224da, type: 2}
+  - {fileID: 11400000, guid: 8a95d6e1356020546be6278be7ee0f78, type: 2}
+  - {fileID: 11400000, guid: 23212ddb5a9c8554c99a167c3b0ba82c, type: 2}
   - {fileID: 11400000, guid: f5f6d94a2ee626946af68223fa760f85, type: 2}
-  - {fileID: 11400000, guid: 0cfba407577891c4c9e8a84d66c82465, type: 2}
+  - {fileID: 11400000, guid: f593c762f5d9a2f47ad6e87757108511, type: 2}
+  - {fileID: 11400000, guid: 1002bfeab68475f49a90e1722e9d198a, type: 2}
+  - {fileID: 11400000, guid: f5f6d94a2ee626946af68223fa760f85, type: 2}
+  - {fileID: 11400000, guid: f593c762f5d9a2f47ad6e87757108511, type: 2}
+  - {fileID: 11400000, guid: 1002bfeab68475f49a90e1722e9d198a, type: 2}
   discardedCards: []
   ingredientDeck: []
   seasoningDeck: []
@@ -198,6 +214,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isSalted: 0
+  isSweetened: 0
+  isSpiced: 0
+  hasDressing: 0
+  isChopped: 0
+  isFried: 0
+  isBoiled: 0
 --- !u!1 &51859068
 GameObject:
   m_ObjectHideFlags: 0
@@ -2154,13 +2176,25 @@ MonoBehaviour:
   flavorPointsText: {fileID: 51859070}
   cardEffectManager: {fileID: 24386839}
   drawsText: {fileID: 1530221819}
+  recipeNameText: {fileID: 805806711}
+  recipeRequirementsText: {fileID: 288279305}
   currentFlavorPoints: 0
   cardsPlayed: 0
   maxCardsPerRound: 8
   deckManager: {fileID: 24386837}
-  allRecipes:
-  - {fileID: 11400000, guid: 2d005ce3f9638da488078258d49d306a, type: 2}
-  - {fileID: 11400000, guid: 1b97ebc32c4a62c419b8123572e3c132, type: 2}
+  allCardTypes:
+  - {fileID: 11400000, guid: 625bb22dcb2b4cf4bb0ac6a0334b55a2, type: 2}
+  - {fileID: 11400000, guid: f91cb19a772db0747979f170faec8b70, type: 2}
+  - {fileID: 11400000, guid: 4aecd175bd58fe84f8d78d58b9fbcc96, type: 2}
+  - {fileID: 11400000, guid: c8ec6cd5375a7c14bbe731d35aec2e4f, type: 2}
+  - {fileID: 11400000, guid: 31db0146235357b479af22e68894a3b0, type: 2}
+  - {fileID: 11400000, guid: 04e9a9c67b0f30d4880e7e783ece9437, type: 2}
+  - {fileID: 11400000, guid: 4404000e8fccaeb40beebd41497224da, type: 2}
+  - {fileID: 11400000, guid: 8a95d6e1356020546be6278be7ee0f78, type: 2}
+  - {fileID: 11400000, guid: 23212ddb5a9c8554c99a167c3b0ba82c, type: 2}
+  - {fileID: 11400000, guid: f5f6d94a2ee626946af68223fa760f85, type: 2}
+  - {fileID: 11400000, guid: f593c762f5d9a2f47ad6e87757108511, type: 2}
+  - {fileID: 11400000, guid: 1002bfeab68475f49a90e1722e9d198a, type: 2}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
