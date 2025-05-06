@@ -6,7 +6,6 @@ public enum RecipeType { Ingredient, Seasoning, Technique, Tool }
 public class RecipeData : ScriptableObject
 {
     public string recipeName;
-    public GameObject cardPrefab;
 
     // Add flavor meter requirements (example)
     public int flavorPointsRequired;

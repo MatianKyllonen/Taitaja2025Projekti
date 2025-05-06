@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -6,11 +7,16 @@ public class GameManager : MonoBehaviour
     public static GameManager instance;
     public Card selectedCard;
     public RecipeData currentRecipe;
+    public TextMeshProUGUI flavorPointsText;
+    public CardEffectManager cardEffectManager;
+    public TextMeshProUGUI drawsText;
 
     public int currentFlavorPoints = 0;
-    public int maxFlavorPoints = 10;
+    public int cardsPlayed = 0;
+    public int maxCardsPerRound = 8;
 
     public DeckManager deckManager;
+    public List<RecipeData> allRecipes;
 
     private HashSet<string> usedIngredients = new();
     private HashSet<string> usedTools = new();
@@ -28,12 +34,24 @@ public class GameManager : MonoBehaviour
     public void StartRound()
     {
         currentFlavorPoints = 0;
+        cardsPlayed = 0;
+
         usedIngredients.Clear();
         usedTools.Clear();
         usedTechniques.Clear();
         usedSeasonings.Clear();
 
         deckManager.BeginRound();
+
+        if (currentRecipe == null || allRecipes.Count == 0)
+        {
+            Debug.LogWarning("No recipes available!");
+            return;
+        }
+
+        currentRecipe = allRecipes[Random.Range(0, allRecipes.Count)];
+        flavorPointsText.text = currentFlavorPoints.ToString();
+
         Debug.Log($"Round started! Recipe: {currentRecipe.recipeName}. Required flavor: {currentRecipe.flavorPointsRequired}");
     }
 
@@ -54,7 +72,7 @@ public class GameManager : MonoBehaviour
                 {
                     usedIngredients.Add(type.cardName);
                     if (type.cardName == currentRecipe.requiredIngredient)
-                        AddFlavorPoints(3);
+                        AddFlavorPoints(30);
                 }
                 break;
 
@@ -63,7 +81,7 @@ public class GameManager : MonoBehaviour
                 {
                     usedTools.Add(type.cardName);
                     if (type.cardName == currentRecipe.requiredTool)
-                        AddFlavorPoints(2);
+                        AddFlavorPoints(20);
                 }
                 break;
 
@@ -72,7 +90,7 @@ public class GameManager : MonoBehaviour
                 {
                     usedTechniques.Add(type.cardName);
                     if (type.cardName == currentRecipe.requiredTechnique)
-                        AddFlavorPoints(3);
+                        AddFlavorPoints(30);
                 }
                 break;
 
@@ -81,19 +99,29 @@ public class GameManager : MonoBehaviour
                 {
                     usedSeasonings.Add(type.cardName);
                     if (type.cardName == currentRecipe.preferredSeasoning)
-                        AddFlavorPoints(2);
+                        AddFlavorPoints(20);
                     else
-                        AddFlavorPoints(1);
+                        AddFlavorPoints(10);
                 }
                 break;
         }
 
-        CheckRecipeCompletion();
+        cardsPlayed++;
+
+        if (cardsPlayed >= maxCardsPerRound)
+        {
+            EndRound();
+        }
+        else
+        {
+            CheckRecipeCompletion(); // Optional mid-turn feedback
+        }
     }
 
     void AddFlavorPoints(int amount)
     {
         currentFlavorPoints += amount;
+        flavorPointsText.text = currentFlavorPoints.ToString();
         Debug.Log($"Flavor points added: {amount}. Current: {currentFlavorPoints}/{currentRecipe.flavorPointsRequired}");
     }
 
@@ -102,6 +130,21 @@ public class GameManager : MonoBehaviour
         if (currentFlavorPoints >= currentRecipe.flavorPointsRequired)
         {
             Debug.Log("Dish completed successfully!");
+        }
+    }
+
+    void EndRound()
+    {
+        Debug.Log("Round finished.");
+        if (currentFlavorPoints >= currentRecipe.flavorPointsRequired)
+        {
+            Debug.Log("Success! Loading next recipe...");
+            StartRound(); // Or wait for player to click “Next”
+        }
+        else
+        {
+            Debug.Log("Game Over! Not enough flavor.");
+            // Add a Game Over screen or return to menu
         }
     }
 }
