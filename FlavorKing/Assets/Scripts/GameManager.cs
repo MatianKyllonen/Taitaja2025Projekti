@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
@@ -20,6 +21,10 @@ public class GameManager : MonoBehaviour
     public AudioSource audioSource;
     public AudioClip clickSound;
     public AudioClip playCardSound;
+
+    public GameObject playedCardImagePrefab;  // Prefab for displaying played card
+    public Transform playedCardPanel;         // Parent container for the card images (e.g., a horizontal layout)
+
 
 
     public int currentFlavorPoints = 0;
@@ -101,6 +106,12 @@ public class GameManager : MonoBehaviour
         currentFlavorPoints = 0;
         cardsPlayed = 0;
 
+        // Clear played card UI
+        foreach (Transform child in playedCardPanel)
+        {
+            Destroy(child.gameObject);
+        }
+
         usedIngredients.Clear();
         usedTools.Clear();
         usedTechniques.Clear();
@@ -129,6 +140,7 @@ public class GameManager : MonoBehaviour
         Debug.Log($"Round started! Recipe: {currentRecipe.recipeName}. Required flavor: {currentRecipe.flavorPointsRequired}");
     }
 
+
     public void SelectCard(Card card)
     {
         audioSource.PlayOneShot(clickSound);
@@ -144,6 +156,19 @@ public class GameManager : MonoBehaviour
         cardsPlayed++;
 
         type.ExecuteEffect(cardEffectManager);
+
+        // Show card as played ingredient image
+        if (playedCardImagePrefab != null && playedCardPanel != null)
+        {
+            GameObject newImageGO = Instantiate(playedCardImagePrefab, playedCardPanel);
+            Image img = newImageGO.GetComponent<Image>();
+            if (img != null)
+            {
+                img.sprite = type.cardImage;
+            }
+        }
+
+
 
         Debug.Log(deckManager.drawsLeft + " " + deckManager.hand.childCount);
         if (deckManager.drawsLeft <= 0 && (deckManager.hand.childCount -1) <= 0)
@@ -194,20 +219,54 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    bool HasMetRecipeRequirements()
+    {
+        if (!usedIngredients.Contains(currentRecipe.requiredIngredient))
+        {
+            Debug.Log("Missing required ingredient.");
+            return false;
+        }
+
+        if (!string.IsNullOrEmpty(currentRecipe.preferredSeasoning) && !usedSeasonings.Contains(currentRecipe.preferredSeasoning))
+        {
+            Debug.Log("Missing preferred seasoning.");
+            return false;
+        }
+
+        if (!string.IsNullOrEmpty(currentRecipe.requiredTool) && !usedTools.Contains(currentRecipe.requiredTool))
+        {
+            Debug.Log("Missing required tool.");
+            return false;
+        }
+
+        if (!string.IsNullOrEmpty(currentRecipe.requiredTechnique) && !usedTechniques.Contains(currentRecipe.requiredTechnique))
+        {
+            Debug.Log("Missing required technique.");
+            return false;
+        }
+
+        return true;
+    }
+
+
     void EndRound()
     {
         Debug.Log("Round finished.");
-        if (currentFlavorPoints >= currentRecipe.flavorPointsRequired)
+
+        bool recipeComplete = currentFlavorPoints >= currentRecipe.flavorPointsRequired && HasMetRecipeRequirements();
+
+        if (recipeComplete)
         {
             Debug.Log("Success! Loading next recipe...");
             StartCoroutine(FadeDelay());
         }
         else
         {
-            Debug.Log("Game Over! Not enough flavor.");
+            Debug.Log("Game Over! Recipe incomplete or missing required elements.");
             StartCoroutine(RestartDelay());
         }
     }
+
 
     private IEnumerator FadeDelay()
     {

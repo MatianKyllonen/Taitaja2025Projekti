@@ -20,7 +20,7 @@ public class CardType : ScriptableObject
         switch (cardName)
         {
             case "Salt": effectManager.ApplySaltEffect(); break;
-            case "Dressimg": effectManager.ApplySweetEffect(); break;
+            case "Dressing": effectManager.ApplyDressingEffect(); break;
             case "Chili": effectManager.ApplySpicyEffect(); break;
             case "Boil": effectManager.ApplyBoilingEffect(); break;
             case "Fry": effectManager.ApplyFryingEffect(); break;
