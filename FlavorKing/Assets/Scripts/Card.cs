@@ -16,6 +16,10 @@ public class Card : MonoBehaviour
     public Image frontSideImage;
     public bool isUsable;
     public GameObject cardOutline;
+    private Vector3 originalPosition;
+    private float originalY;
+
+
 
     public Sprite[] spritesheet;
 
@@ -60,15 +64,22 @@ public class Card : MonoBehaviour
         isCurrentlySelected = selected;
         cardOutline.SetActive(selected);
 
+        float moveOffset = 200f;
+
         if (selected)
         {
-            transform.DOScale(originalScale * 1.4f, 0.2f).SetEase(Ease.OutBack); // Scale up
+            originalY = transform.localPosition.y; // Store starting Y
+            transform.DOScale(originalScale * 1.4f, 0.2f).SetEase(Ease.OutBack);
+            transform.DOLocalMoveY(originalY + moveOffset, 0.2f).SetEase(Ease.OutBack);
         }
         else
         {
-            transform.DOScale(originalScale, 0.2f).SetEase(Ease.OutBack); // Scale back to original
+            transform.DOScale(originalScale, 0.2f).SetEase(Ease.OutBack);
+            transform.DOLocalMoveY(originalY, 0.2f).SetEase(Ease.OutBack); // Return to stored original Y
         }
     }
+
+
 
     public void SetCardImages()
     {
@@ -97,8 +108,8 @@ public class Card : MonoBehaviour
             {
                 DiscardCard();
                 GameManager.instance.selectedCard.DiscardCard();
-                GameManager.instance.deckManager.isDiscarding = false;
                 GameManager.instance.deckManager.AddDraw();
+                GameManager.instance.deckManager.StopDiscarding();
             }
         }
         else if (GameManager.instance.selectedCard == this)
@@ -127,40 +138,6 @@ public class Card : MonoBehaviour
             Debug.LogError("DeckManager not found in the scene.");
         }
     }
-
-    void OnMouseOver()
-    {
-
-        if (!isUsable)
-            return;
-
-        AnimateHoverEnter();
-    }
-
-    void OnMouseExit()
-    {
-        if (!isUsable)
-            return;
-
-        AnimateHoverExit();
-    }
-
-    private void AnimateHoverEnter()
-    {
-        if (!isUsable)
-            return;
-        // Scale up the card slightly on hover
-        transform.DOScale(0.75f + 0.25f, 0.2f).SetEase(Ease.OutCubic);
-    }
-
-    private void AnimateHoverExit()
-    {
-        if (!isUsable)
-            return;
-        // Scale back to the original size when the hover ends
-        transform.DOScale(0.75f, 0.2f).SetEase(Ease.OutCubic);
-    }
-
     private void AnimateClick()
     {
         // Add a quick scale-down and scale-up effect on click

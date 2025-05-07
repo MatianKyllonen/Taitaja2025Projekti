@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using DG.Tweening;
-using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class DeckManager : MonoBehaviour
 {
@@ -17,6 +17,10 @@ public class DeckManager : MonoBehaviour
     public Transform techniquePilePos;
     public Transform toolPilePos;
     public AudioClip drawCardSound;
+
+    public Sprite discardCanOpen;
+    public Sprite discardCanClosed;
+    public Image discardButton;
 
 
     public int cardsPerRound = 8;
@@ -116,9 +120,24 @@ public class DeckManager : MonoBehaviour
 
     public void startDiscarding()
     {
+        if (isDiscarding)
+        {
+            StopDiscarding();
+            return;
+        }
+
+        discardButton.sprite = discardCanOpen;
         isDiscarding = true;
         Debug.Log("Discarding mode activated! Select a cards to discard.");
         GameManager.instance.selectedCard = null; // Reset selected card
+    }
+
+    public void StopDiscarding()
+    {
+        isDiscarding = false;
+        GameManager.instance.selectedCard = null; // Reset selected card
+        discardButton.sprite = discardCanClosed;
+        Debug.Log("Discarding mode deactivated!");
     }
 
     public void BeginRound()
