@@ -5,8 +5,8 @@ using UnityEngine.UI;
 
 public class DeckManager : MonoBehaviour
 {
-    public List<CardType> allCards; 
-    public List<CardType> discardedCards; 
+    public List<CardType> allCards;
+    public List<CardType> discardedCards;
     public List<CardType> ingredientDeck = new();
     public List<CardType> seasoningDeck = new();
     public List<CardType> techniqueDeck = new();
@@ -22,7 +22,6 @@ public class DeckManager : MonoBehaviour
     public Sprite discardCanClosed;
     public Image discardButton;
 
-
     public int cardsPerRound = 8;
     public int drawsLeft = 0;
     public bool isDiscarding;
@@ -32,17 +31,19 @@ public class DeckManager : MonoBehaviour
 
     private List<CardType> currentHand = new();
 
+    private bool isDrawingCard = false; // NEW: Prevent rapid card draws
 
     public void AddDraw()
     {
         drawsLeft++;
         GameManager.instance.drawsText.text = $"{drawsLeft} / 8";
     }
+
     private void ClearOldPileCards()
     {
         foreach (Transform child in transform)
         {
-            if (child.CompareTag("Card")) // Make sure prefab has this tag!
+            if (child.CompareTag("Card"))
                 Destroy(child.gameObject);
         }
     }
@@ -51,23 +52,19 @@ public class DeckManager : MonoBehaviour
     {
         ClearOldPileCards();
 
-        // Shuffle all cards first
         Shuffle(allCards);
 
-        // Offset counters for stacking
         int ingredientOffset = 0;
         int seasoningOffset = 0;
         int techniqueOffset = 0;
         int toolOffset = 0;
-        float offsetStep = 10f; // Adjust this for more or less spacing
+        float offsetStep = 10f;
 
-        // Clear the individual deck lists first
         ingredientDeck.Clear();
         seasoningDeck.Clear();
         techniqueDeck.Clear();
         toolDeck.Clear();
 
-        // Now, distribute the shuffled allCards into their respective decks
         foreach (var card in allCards)
         {
             List<CardType> targetDeck = null;
@@ -104,19 +101,15 @@ public class DeckManager : MonoBehaviour
                 GameObject cardGO = Instantiate(cardPrefab, pilePos.transform);
                 Card cardComp = cardGO.GetComponent<Card>();
                 cardComp.cardType = card;
-                cardComp.SetCardImages();            
-                cardGO.transform.position = pilePos.position + new Vector3(0, offsetIndex * offsetStep, 0); // Stacking offset
+                cardComp.SetCardImages();
+                cardGO.transform.position = pilePos.position + new Vector3(0, offsetIndex * offsetStep, 0);
                 cardGO.transform.rotation = pilePos.rotation;
                 cardComp.isUsable = false;
 
-                // Optional: slight random rotation
                 cardGO.transform.DORotate(new Vector3(0, 180 + Random.Range(-5f, 5f), 0), 0.3f).SetEase(Ease.OutBack);
             }
         }
     }
-
-
-
 
     public void startDiscarding()
     {
@@ -128,16 +121,14 @@ public class DeckManager : MonoBehaviour
 
         discardButton.sprite = discardCanOpen;
         isDiscarding = true;
-        Debug.Log("Discarding mode activated! Select a cards to discard.");
-        GameManager.instance.selectedCard = null; // Reset selected card
+        GameManager.instance.selectedCard = null;
     }
 
     public void StopDiscarding()
     {
         isDiscarding = false;
-        GameManager.instance.selectedCard = null; // Reset selected card
+        GameManager.instance.selectedCard = null;
         discardButton.sprite = discardCanClosed;
-        Debug.Log("Discarding mode deactivated!");
     }
 
     public void BeginRound()
@@ -161,8 +152,12 @@ public class DeckManager : MonoBehaviour
 
     public void DrawFromDeck(CardCategory category = CardCategory.Ingredient)
     {
+        if (isDrawingCard)
+        {
+            Debug.Log("Wait for previous card to finish drawing.");
+            return;
+        }
 
-        
         if (drawsLeft <= 0)
         {
             Debug.Log("No draws left for this round.");
@@ -171,7 +166,6 @@ public class DeckManager : MonoBehaviour
 
         GameManager.instance.audioSource.PlayOneShot(drawCardSound);
 
-        // Get the appropriate data deck (CardType list)
         List<CardType> deck = category switch
         {
             CardCategory.Ingredient => ingredientDeck,
@@ -181,7 +175,6 @@ public class DeckManager : MonoBehaviour
             _ => null
         };
 
-        // Get the pile position for visual reference
         Transform pilePos = category switch
         {
             CardCategory.Ingredient => ingredientPilePos,
@@ -191,78 +184,62 @@ public class DeckManager : MonoBehaviour
             _ => null
         };
 
-        // Ensure the deck and pile position are valid
         if (deck == null || deck.Count == 0 || pilePos == null)
         {
             Debug.Log("No cards left in this deck or invalid pile position.");
             return;
         }
 
-        // Grab the topmost card (first card) from the pile
-        GameObject cardGO = pilePos.GetChild(pilePos.childCount - 1).gameObject; // Assuming the first child is the card
-        Card cardComponent = cardGO.GetComponent<Card>();
-        cardGO.transform.SetParent(hand); // Reparent to the hand after animation
+        isDrawingCard = true;
 
-        // Get the corresponding CardType (the one linked to the topmost card)
+        GameObject cardGO = pilePos.GetChild(pilePos.childCount - 1).gameObject;
+        Card cardComponent = cardGO.GetComponent<Card>();
+        cardGO.transform.SetParent(hand);
+
         CardType cardType = cardComponent.cardType;
 
-        cardComponent.FlipCard(true); // Show the front side of the card
-                                      // Add the card to the player's hand and remove it from the deck (since it's now drawn)
+        cardGO.transform.DOKill(); // NEW: Kill existing tweens
+        cardComponent.FlipCard(true);
+
         currentHand.Add(cardType);
-        deck.Remove(cardType); // Remove from the deck
-        drawsLeft--; // Increment the drawn cards count
+        deck.Remove(cardType);
+        drawsLeft--;
 
-        // Set the card visuals (images, etc.)
-        cardComponent.SetCardImages(); // Update visuals
+        cardComponent.SetCardImages();
 
-        // Add random offset to card movement (spread them apart in the hand)
         Vector3 randomOffset = new Vector3(Random.Range(-2f, 2f), Random.Range(-0.5f, 0.5f), 0f);
 
-        // Move the card to the player's hand
         cardGO.transform.DOMove(hand.position + randomOffset, 0.5f)
             .SetEase(Ease.OutQuad)
             .OnComplete(() =>
             {
-                cardGO.transform.SetParent(null); // Reparent to the hand after animation
-                cardGO.transform.SetParent(hand); // Reparent to the hand after animation
-                cardComponent.isUsable = true; // Mark the card as usable
+                cardGO.transform.SetParent(null);
+                cardGO.transform.SetParent(hand);
+                cardComponent.isUsable = true;
+                isDrawingCard = false; // Unlock input
             });
 
-        // Optionally, you can update the draws text
         GameManager.instance.drawsText.text = $"{drawsLeft} / 8";
     }
 
-
-
     public void DiscardCard(CardType card, GameObject cardGameObject)
     {
-        // Find the correct card GameObject in the hand
         foreach (Transform child in hand)
         {
             Card cardComponent = child.GetComponent<Card>();
             if (cardComponent != null && cardComponent.cardType == card && cardComponent.gameObject == cardGameObject)
             {
-                // Animate the card to the discard pile
+                child.DOKill();
                 child.DOMove(Vector3.zero, 0.5f).SetEase(Ease.OutQuad).OnComplete(() =>
                 {
-                    // Remove the card from the visual hand (this removes it from the hand game object)
-                    Destroy(child.gameObject); // Destroy the GameObject from the hand
-
-                    // Remove the card from the data structure (current hand)
+                    Destroy(child.gameObject);
                     currentHand.Remove(cardComponent.cardType);
-
-                    // Add the card to the discard pile
                     discardedCards.Add(cardComponent.cardType);
                 });
-
-                // Optionally, you could break the loop here if you only expect to discard one card
                 break;
             }
         }
     }
-
-
-
 
     private void Shuffle(List<CardType> deck)
     {
@@ -274,6 +251,4 @@ public class DeckManager : MonoBehaviour
             deck[randomIndex] = temp;
         }
     }
-
-
 }

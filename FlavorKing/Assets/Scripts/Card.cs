@@ -64,7 +64,7 @@ public class Card : MonoBehaviour
         isCurrentlySelected = selected;
         cardOutline.SetActive(selected);
 
-        float moveOffset = 200f;
+        float moveOffset = 230f;
 
         if (selected)
         {

@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using static UnityEngine.Rendering.DebugUI;
 
 public class GameManager : MonoBehaviour
 {
@@ -21,6 +22,13 @@ public class GameManager : MonoBehaviour
     public AudioSource audioSource;
     public AudioClip clickSound;
     public AudioClip playCardSound;
+
+    public GameObject roundEndScreen;
+
+    public AudioClip crunchSound;
+    public AudioClip successSound;
+    public AudioClip failureSound;
+
 
     public GameObject playedCardImagePrefab;  // Prefab for displaying played card
     public Transform playedCardPanel;         // Parent container for the card images (e.g., a horizontal layout)
@@ -106,6 +114,9 @@ public class GameManager : MonoBehaviour
         currentFlavorPoints = 0;
         cardsPlayed = 0;
 
+        flavorPointsText.text = currentFlavorPoints.ToString();
+
+
         // Clear played card UI
         foreach (Transform child in playedCardPanel)
         {
@@ -167,6 +178,24 @@ public class GameManager : MonoBehaviour
                 img.sprite = type.cardImage;
             }
         }
+
+        // Track card usage by category
+        switch (type.category)
+        {
+            case CardCategory.Ingredient:
+                usedIngredients.Add(type.cardName);
+                break;
+            case CardCategory.Seasoning:
+                usedSeasonings.Add(type.cardName);
+                break;
+            case CardCategory.Tool:
+                usedTools.Add(type.cardName);
+                break;
+            case CardCategory.Technique:
+                usedTechniques.Add(type.cardName);
+                break;
+        }
+
 
 
 
@@ -255,30 +284,48 @@ public class GameManager : MonoBehaviour
 
         bool recipeComplete = currentFlavorPoints >= currentRecipe.flavorPointsRequired && HasMetRecipeRequirements();
 
+        // Play crunch sound immediately
+        audioSource.PlayOneShot(crunchSound);
+
         if (recipeComplete)
         {
             Debug.Log("Success! Loading next recipe...");
-            StartCoroutine(FadeDelay());
+            StartCoroutine(FadeDelay(successSound));
         }
         else
         {
             Debug.Log("Game Over! Recipe incomplete or missing required elements.");
-            StartCoroutine(RestartDelay());
+            StartCoroutine(RestartDelay(failureSound));
         }
     }
 
-
-    private IEnumerator FadeDelay()
+    private IEnumerator FadeDelay(AudioClip feedbackSound)
     {
+        yield return new WaitForSeconds(0.5f); // Wait after crunch
+        audioSource.PlayOneShot(feedbackSound, 1f);
+
         fadeAnimator.SetTrigger("FadeIn");
         yield return new WaitForSeconds(0.5f);
+        roundEndScreen.SetActive(true);
+        roundEndScreen.GetComponentInChildren<TextMeshProUGUI>().text = "Nicely Done chef!";
+        yield return new WaitForSeconds(2.0f);
+        roundEndScreen.SetActive(false);
         StartRound();
+
     }
 
-    private IEnumerator RestartDelay()
+    private IEnumerator RestartDelay(AudioClip feedbackSound)
     {
+        yield return new WaitForSeconds(0.5f); // Wait after crunch
+        audioSource.PlayOneShot(feedbackSound, 1f);
+
         fadeAnimator.SetTrigger("FadeIn");
         yield return new WaitForSeconds(0.5f);
+        roundEndScreen.SetActive(true);
+        roundEndScreen.GetComponentInChildren<TextMeshProUGUI>().text = "They were not happy";
+        yield return new WaitForSeconds(2.0f);
+        roundEndScreen.SetActive(false);
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
+
 }
