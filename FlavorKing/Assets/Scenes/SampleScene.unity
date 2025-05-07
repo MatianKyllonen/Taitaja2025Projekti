@@ -4706,6 +4706,8 @@ MonoBehaviour:
   audioSource: {fileID: 2123270795}
   clickSound: {fileID: 8300000, guid: ae218e2bd8b06394e89002ec4f3dad61, type: 3}
   playCardSound: {fileID: 8300000, guid: 5b0a3809e7fe69c4e9f4ee92a4a9a9da, type: 3}
+  playedCardImagePrefab: {fileID: 8723110857213451937, guid: bfc8f362b39bb684aa88a2d321da7d10, type: 3}
+  playedCardPanel: {fileID: 179422658}
   currentFlavorPoints: 0
   cardsPlayed: 0
   maxCardsPerRound: 8
