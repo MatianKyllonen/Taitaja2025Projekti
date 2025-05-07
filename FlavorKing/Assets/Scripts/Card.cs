@@ -6,10 +6,7 @@ using UnityEngine.UI;
 
 public class Card : MonoBehaviour
 {
-
-    
-    public CardType cardType; // Reference to the CardType to get the details of the card (e.g., name, category)
-
+    public CardType cardType;
     private Button button;
 
     public TextMeshProUGUI cardName;
@@ -22,29 +19,55 @@ public class Card : MonoBehaviour
 
     public Sprite[] spritesheet;
 
+    private bool isCurrentlySelected = false; // Track selection state
+    private Vector3 originalScale; // Store the default scale
+
     void Start()
     {
         button = GetComponent<Button>();
-        button.onClick.AddListener(OnCardClicked); // Attach the method to the button click event
-       
+        button.onClick.AddListener(OnCardClicked);
+
+        originalScale = transform.localScale; // Capture original scale
 
         cardName.text = cardType.cardName;
         cardDescription.text = cardType.cardDescription;
         cardImage.sprite = cardType.cardImage;
-        SetCardImages(); 
+        SetCardImages();
     }
 
     private void Update()
     {
-        if(GameManager.instance.selectedCard == this)
+        if (GameManager.instance.selectedCard == this)
         {
-            cardOutline.SetActive(true); // Show the outline if this card is selected
+            if (!isCurrentlySelected)
+            {
+                SetSelected(true);
+            }
         }
         else
         {
-            cardOutline.SetActive(false); // Hide the outline if this card is not selected
+            if (isCurrentlySelected)
+            {
+                SetSelected(false);
+            }
         }
-        button.enabled = isUsable; // Enable or disable the button based on isUsable
+
+        button.enabled = isUsable;
+    }
+
+    private void SetSelected(bool selected)
+    {
+        isCurrentlySelected = selected;
+        cardOutline.SetActive(selected);
+
+        if (selected)
+        {
+            transform.DOScale(originalScale * 1.4f, 0.2f).SetEase(Ease.OutBack); // Scale up
+        }
+        else
+        {
+            transform.DOScale(originalScale, 0.2f).SetEase(Ease.OutBack); // Scale back to original
+        }
     }
 
     public void SetCardImages()
@@ -90,13 +113,14 @@ public class Card : MonoBehaviour
 
     public void PlayCard()
     {
+        isUsable = false;
         GameManager.instance.PlayCard(this);
 
         // Discard the card after playing
         DeckManager deckManager = FindFirstObjectByType<DeckManager>();
         if (deckManager != null)
         {
-            deckManager.DiscardCard(cardType);
+            deckManager.DiscardCard(cardType, gameObject);
         }
         else
         {

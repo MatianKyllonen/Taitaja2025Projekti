@@ -1,6 +1,8 @@
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -12,6 +14,13 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI drawsText;
     public TextMeshProUGUI recipeNameText;
     public TextMeshProUGUI recipeRequirementsText;
+    public GameObject flavorPopupPrefab;
+    public RectTransform canvasTransform;
+    public Animator fadeAnimator;
+    public AudioSource audioSource;
+    public AudioClip clickSound;
+    public AudioClip playCardSound;
+
 
     public int currentFlavorPoints = 0;
     public int cardsPlayed = 0;
@@ -43,7 +52,7 @@ public class GameManager : MonoBehaviour
     {
         // Randomly select a recipe name and required flavor points (just an example)
         
-        int randomFlavorPoints = Random.Range(150, 500); // Random flavor points
+        int randomFlavorPoints = Random.Range(100, 300); // Random flavor points
 
         // Randomly select an ingredient, technique, seasoning, and tool
         string randomIngredient = GetRandomCardOfCategory(CardCategory.Ingredient)?.cardName ?? "Unknown Ingredient";
@@ -51,11 +60,13 @@ public class GameManager : MonoBehaviour
 
         if (Random.Range(1, 100) <= 50)
         {
+            Debug.Log("Tool required");
             string randomTool = GetRandomCardOfCategory(CardCategory.Tool)?.cardName ?? "";
             currentRecipe.requiredTool = randomTool;
         }
         if (Random.Range(1, 100) <= 50)
         {
+            Debug.Log("Technique required");
             string randomTechnique = GetRandomCardOfCategory(CardCategory.Technique)?.cardName ?? "";
             currentRecipe.requiredTechnique = randomTechnique;
         }     
@@ -86,6 +97,7 @@ public class GameManager : MonoBehaviour
 
     public void StartRound()
     {
+        fadeAnimator.SetTrigger("FadeOut");
         currentFlavorPoints = 0;
         cardsPlayed = 0;
 
@@ -119,6 +131,7 @@ public class GameManager : MonoBehaviour
 
     public void SelectCard(Card card)
     {
+        audioSource.PlayOneShot(clickSound);
         selectedCard = card;
         Debug.Log("Card selected: " + card.cardType.cardName);
     }
@@ -127,52 +140,13 @@ public class GameManager : MonoBehaviour
     {
         CardType type = card.cardType;
 
-        switch (type.category)
-        {
-            case CardCategory.Ingredient:
-                if (!usedIngredients.Contains(type.cardName))
-                {
-                    usedIngredients.Add(type.cardName);
-                    if (type.cardName == currentRecipe.requiredIngredient)
-                        AddFlavorPoints(30);
-                }
-                break;
-
-            case CardCategory.Tool:
-                if (!usedTools.Contains(type.cardName))
-                {
-                    usedTools.Add(type.cardName);
-                    if (type.cardName == currentRecipe.requiredTool)
-                        AddFlavorPoints(20);
-                }
-                break;
-
-            case CardCategory.Technique:
-                if (!usedTechniques.Contains(type.cardName))
-                {
-                    usedTechniques.Add(type.cardName);
-                    if (type.cardName == currentRecipe.requiredTechnique)
-                        AddFlavorPoints(30);
-                }
-                break;
-
-            case CardCategory.Seasoning:
-                if (!usedSeasonings.Contains(type.cardName))
-                {
-                    usedSeasonings.Add(type.cardName);
-                    if (type.cardName == currentRecipe.preferredSeasoning)
-                        AddFlavorPoints(20);
-                    else
-                        AddFlavorPoints(10);
-                }
-                break;
-        }
-
+        audioSource.PlayOneShot(playCardSound);
         cardsPlayed++;
 
         type.ExecuteEffect(cardEffectManager);
 
-        if (cardsPlayed >= maxCardsPerRound)
+        Debug.Log(deckManager.drawsLeft + " " + deckManager.hand.childCount);
+        if (deckManager.drawsLeft <= 0 && (deckManager.hand.childCount -1) <= 0)
         {
             EndRound();
         }
@@ -187,7 +161,30 @@ public class GameManager : MonoBehaviour
         currentFlavorPoints += amount;
         flavorPointsText.text = currentFlavorPoints.ToString();
         Debug.Log($"Flavor points added: {amount}. Current: {currentFlavorPoints}/{currentRecipe.flavorPointsRequired}");
+
+        if (selectedCard != null)
+        {
+            ShowFlavorPopup(amount, selectedCard.transform.position);
+        }
     }
+
+    public void ShowFlavorPopup(int amount, Vector3 worldPosition)
+    {
+        // Instantiate the popup prefab as a child of the selected card
+        GameObject popupGO = Instantiate(flavorPopupPrefab, selectedCard.transform);
+
+        // Get the FlavorPopup component from the instantiated object
+        FlavorPopup popup = popupGO.GetComponent<FlavorPopup>();
+
+        // Update the text with a "+" sign for positive amounts
+        popup.text.text = (amount > 0 ? "+" : "") + amount.ToString();
+
+        // Set the color to red if the amount is negative, or green for positive
+        popup.text.color = amount >= 0 ? Color.green : Color.red;
+    }
+
+
+
 
     void CheckRecipeCompletion()
     {
@@ -203,12 +200,26 @@ public class GameManager : MonoBehaviour
         if (currentFlavorPoints >= currentRecipe.flavorPointsRequired)
         {
             Debug.Log("Success! Loading next recipe...");
-            StartRound(); // Or wait for player to click “Next”
+            StartCoroutine(FadeDelay());
         }
         else
         {
             Debug.Log("Game Over! Not enough flavor.");
-            // Add a Game Over screen or return to menu
+            StartCoroutine(RestartDelay());
         }
+    }
+
+    private IEnumerator FadeDelay()
+    {
+        fadeAnimator.SetTrigger("FadeIn");
+        yield return new WaitForSeconds(0.5f);
+        StartRound();
+    }
+
+    private IEnumerator RestartDelay()
+    {
+        fadeAnimator.SetTrigger("FadeIn");
+        yield return new WaitForSeconds(0.5f);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }
