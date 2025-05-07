@@ -557,7 +557,7 @@ MonoBehaviour:
   m_text: 0
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 0813e05ddb7fcea4fbd43f8a71d5cbd3, type: 2}
-  m_sharedMaterial: {fileID: -5137866224357998866, guid: 0813e05ddb7fcea4fbd43f8a71d5cbd3, type: 2}
+  m_sharedMaterial: {fileID: 3808834878112234829, guid: 0813e05ddb7fcea4fbd43f8a71d5cbd3, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1183,7 +1183,7 @@ MonoBehaviour:
   m_text: They were not happy!
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 0813e05ddb7fcea4fbd43f8a71d5cbd3, type: 2}
-  m_sharedMaterial: {fileID: -5137866224357998866, guid: 0813e05ddb7fcea4fbd43f8a71d5cbd3, type: 2}
+  m_sharedMaterial: {fileID: 0}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1248,7 +1248,7 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 0
+  m_hasFontAssetChanged: 1
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!222 &260058318
@@ -1321,7 +1321,7 @@ MonoBehaviour:
   m_text: -Pasta
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 0813e05ddb7fcea4fbd43f8a71d5cbd3, type: 2}
-  m_sharedMaterial: {fileID: -5137866224357998866, guid: 0813e05ddb7fcea4fbd43f8a71d5cbd3, type: 2}
+  m_sharedMaterial: {fileID: 3808834878112234829, guid: 0813e05ddb7fcea4fbd43f8a71d5cbd3, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -3158,7 +3158,7 @@ MonoBehaviour:
   m_text: Prepare Pasta
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 0813e05ddb7fcea4fbd43f8a71d5cbd3, type: 2}
-  m_sharedMaterial: {fileID: -5137866224357998866, guid: 0813e05ddb7fcea4fbd43f8a71d5cbd3, type: 2}
+  m_sharedMaterial: {fileID: 3808834878112234829, guid: 0813e05ddb7fcea4fbd43f8a71d5cbd3, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -4576,7 +4576,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 980, y: 264.5}
+  m_AnchoredPosition: {x: 957.5, y: 264.5}
   m_SizeDelta: {x: 300, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1530221819
@@ -4602,7 +4602,7 @@ MonoBehaviour:
   m_text: 8/8
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 0813e05ddb7fcea4fbd43f8a71d5cbd3, type: 2}
-  m_sharedMaterial: {fileID: -5137866224357998866, guid: 0813e05ddb7fcea4fbd43f8a71d5cbd3, type: 2}
+  m_sharedMaterial: {fileID: 3808834878112234829, guid: 0813e05ddb7fcea4fbd43f8a71d5cbd3, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -5255,7 +5255,7 @@ MonoBehaviour:
   m_text: Flavor
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 0813e05ddb7fcea4fbd43f8a71d5cbd3, type: 2}
-  m_sharedMaterial: {fileID: -5137866224357998866, guid: 0813e05ddb7fcea4fbd43f8a71d5cbd3, type: 2}
+  m_sharedMaterial: {fileID: 3808834878112234829, guid: 0813e05ddb7fcea4fbd43f8a71d5cbd3, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

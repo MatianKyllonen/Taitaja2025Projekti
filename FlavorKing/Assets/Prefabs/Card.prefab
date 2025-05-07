@@ -68,7 +68,7 @@ MonoBehaviour:
   m_text: Blah blah ablha lhablhlah la lbal l
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 0813e05ddb7fcea4fbd43f8a71d5cbd3, type: 2}
-  m_sharedMaterial: {fileID: -5137866224357998866, guid: 0813e05ddb7fcea4fbd43f8a71d5cbd3, type: 2}
+  m_sharedMaterial: {fileID: 3808834878112234829, guid: 0813e05ddb7fcea4fbd43f8a71d5cbd3, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -204,7 +204,7 @@ MonoBehaviour:
   m_text: Pasta
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 0813e05ddb7fcea4fbd43f8a71d5cbd3, type: 2}
-  m_sharedMaterial: {fileID: -5137866224357998866, guid: 0813e05ddb7fcea4fbd43f8a71d5cbd3, type: 2}
+  m_sharedMaterial: {fileID: 3808834878112234829, guid: 0813e05ddb7fcea4fbd43f8a71d5cbd3, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
