@@ -4833,7 +4833,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Flavor king's Menu
+  m_text: Flavor frenzy's Menu
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 0813e05ddb7fcea4fbd43f8a71d5cbd3, type: 2}
   m_sharedMaterial: {fileID: -5137866224357998866, guid: 0813e05ddb7fcea4fbd43f8a71d5cbd3, type: 2}
