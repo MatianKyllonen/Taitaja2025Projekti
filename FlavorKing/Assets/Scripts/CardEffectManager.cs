@@ -2,6 +2,9 @@ using UnityEngine;
 
 public class CardEffectManager : MonoBehaviour
 {
+
+
+    //when a technique is played, these are used.
     public bool isSalted;
     public bool isSweetened;
     public bool isSpiced;
@@ -9,6 +12,13 @@ public class CardEffectManager : MonoBehaviour
     public bool isChopped;
     public bool isFried;
     public bool isBoiled;
+
+    //when a tool effect is applied these are used.
+    public bool potUsed;
+    public bool panUsed;
+    public bool knifeUsed;
+
+    //for max meat score you play, pan card, then fry card. Just frying gives score too, but having used the pan to fry gives more
 
     public void ApplySaltEffect()
     {
@@ -61,8 +71,15 @@ public class CardEffectManager : MonoBehaviour
 
     public void ApplyDressingEffect()
     {
+        if(isSalted)
+        {
+            GameManager.instance.AddFlavorPoints(-25);
+            Debug.Log("Dont add dressing to salted food");
+            return;
+        }
         GameManager.instance.AddFlavorPoints(50);
         Debug.Log("Dressing added zest! +50 flavor points.");
+        hasDressing = true;
     }
 
     public void ApplyBoilingEffect()
@@ -82,23 +99,36 @@ public class CardEffectManager : MonoBehaviour
 
     public void ApplyFryingEffect()
     {
-        int bonus = isChopped ? 100 : 50;
-        GameManager.instance.AddFlavorPoints(bonus);
-        Debug.Log($"Fried the food! +{bonus} flavor points. (Bonus if chopped: {isChopped})");
-
-        isFried = true;
+        if(panUsed)
+        {
+            isFried = true;
+            GameManager.instance.AddFlavorPoints(100);
+            Debug.Log("Pan was used to fry, + 100 flavor");
+        }
     }
 
     public void ApplyChopEffect()
     {
-        isChopped = true;
-        GameManager.instance.AddFlavorPoints(50);
-        Debug.Log("Chopped ingredients! +50 flavor points.");
+        if(knifeUsed)
+        {
+            isChopped =true;
+            GameManager.instance.AddFlavorPoints(100);
+            
+        }
+        else
+        {
+            isChopped = true;
+            GameManager.instance.AddFlavorPoints(20);
+            Debug.Log("Chopping without knife, only +20");
+        }      
     }
 
     public void ApplyKnifeEffect()
     {
-        if (isChopped)
+        knifeUsed = true;
+        
+
+        /*if (isChopped)
         {
             GameManager.instance.AddFlavorPoints(30);
             Debug.Log("Used knife after chopping! +30 flavor points.");
@@ -106,7 +136,7 @@ public class CardEffectManager : MonoBehaviour
         else
         {
             Debug.Log("Knife used, but nothing to chop.");
-        }
+        } */
     }
 
     public void ApplyPotEffect()
@@ -124,14 +154,6 @@ public class CardEffectManager : MonoBehaviour
 
     public void ApplyPanEffect()
     {
-        if (isFried)
-        {
-            GameManager.instance.AddFlavorPoints(40);
-            Debug.Log("Pan used with frying! +40 flavor points.");
-        }
-        else
-        {
-            Debug.Log("Pan had no effect without frying.");
-        }
+        panUsed = true;
     }
 }
