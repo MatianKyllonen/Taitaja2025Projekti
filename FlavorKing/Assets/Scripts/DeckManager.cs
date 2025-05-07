@@ -19,19 +19,20 @@ public class DeckManager : MonoBehaviour
 
 
     public int cardsPerRound = 8;
-    private int cardsDrawnThisRound = 0;
+    public int drawsLeft = 0;
+    public bool isDiscarding;
 
     public GameObject cardPrefab;
     public Transform hand; // Parent transform for drawn cards
 
     private List<CardType> currentHand = new();
-    public int CardsDrawnThisRound => cardsDrawnThisRound;
 
-    public int RemainingDraws()
+
+    public void AddDraw()
     {
-        return cardsPerRound - cardsDrawnThisRound;
+        drawsLeft++;
+        GameManager.instance.drawsText.text = $"{drawsLeft} / 8";
     }
-
     private void ClearOldPileCards()
     {
         foreach (Transform child in transform)
@@ -41,39 +42,44 @@ public class DeckManager : MonoBehaviour
         }
     }
 
-
-
-    private void Start()
-    {
-        BeginRound();
-    }
-
     private void ShuffleIntoDecks()
     {
         ClearOldPileCards();
+
+        // Offset counters for stacking
+        int ingredientOffset = 0;
+        int seasoningOffset = 0;
+        int techniqueOffset = 0;
+        int toolOffset = 0;
+        float offsetStep = 10f; // Adjust this for more or less spacing
 
         foreach (var card in allCards)
         {
             List<CardType> targetDeck = null;
             Transform pilePos = null;
+            int offsetIndex = 0;
 
             switch (card.category)
             {
                 case CardCategory.Ingredient:
                     targetDeck = ingredientDeck;
                     pilePos = ingredientPilePos;
+                    offsetIndex = ingredientOffset++;
                     break;
                 case CardCategory.Seasoning:
                     targetDeck = seasoningDeck;
                     pilePos = seasoningPilePos;
+                    offsetIndex = seasoningOffset++;
                     break;
                 case CardCategory.Technique:
                     targetDeck = techniqueDeck;
                     pilePos = techniquePilePos;
+                    offsetIndex = techniqueOffset++;
                     break;
                 case CardCategory.Tool:
                     targetDeck = toolDeck;
                     pilePos = toolPilePos;
+                    offsetIndex = toolOffset++;
                     break;
             }
 
@@ -85,11 +91,11 @@ public class DeckManager : MonoBehaviour
                 cardComp.cardType = card;
                 cardComp.SetCardImages();
                 cardComp.FlipCard(false); // Show back
-                cardGO.transform.position = pilePos.position;
+                cardGO.transform.position = pilePos.position + new Vector3(0, offsetIndex * offsetStep, 0); // Stacking offset
                 cardGO.transform.rotation = pilePos.rotation;
                 cardComp.isUsable = false;
 
-                // Optional: slight random rotation or offset
+                // Optional: slight random rotation
                 cardGO.transform.DORotate(new Vector3(0, 180 + Random.Range(-5f, 5f), 0), 0.3f).SetEase(Ease.OutBack);
             }
         }
@@ -100,9 +106,17 @@ public class DeckManager : MonoBehaviour
         Shuffle(toolDeck);
     }
 
+
+    public void startDiscarding()
+    {
+        isDiscarding = true;
+        Debug.Log("Discarding mode activated! Select a cards to discard.");
+        GameManager.instance.selectedCard = null; // Reset selected card
+    }
+
     public void BeginRound()
     {
-        cardsDrawnThisRound = 0;
+        drawsLeft = cardsPerRound;
         currentHand.Clear();
         ingredientDeck.Clear();
         seasoningDeck.Clear();
@@ -114,15 +128,25 @@ public class DeckManager : MonoBehaviour
         Debug.Log("Round started! Choose decks to draw from.");
     }
 
+    public void EndRound()
+    {
+        // Clear the hand and reset the decks
+        foreach (Transform child in hand)
+        {
+            Destroy(child.gameObject);
+        }
+        currentHand.Clear();
+        ingredientDeck.Clear();
+        seasoningDeck.Clear();
+        techniqueDeck.Clear();
+        toolDeck.Clear();
+        Debug.Log("Round ended! All cards discarded.");
+    }
+
     public void DrawFromDeck(CardCategory category = CardCategory.Ingredient)
     {
-        GameManager.instance.drawsText.text = $"{RemainingDraws()} / 8";
+       
 
-        if (cardsDrawnThisRound >= cardsPerRound)
-        {
-            Debug.Log("You have already drawn 8 cards.");
-            return;
-        }
 
         // Get the appropriate data deck (CardType list)
         List<CardType> deck = category switch
@@ -152,7 +176,7 @@ public class DeckManager : MonoBehaviour
         }
 
         // Grab the topmost card (first card) from the pile
-        GameObject cardGO = pilePos.GetChild(0).gameObject; // Assuming the first child is the card
+        GameObject cardGO = pilePos.GetChild(pilePos.childCount -1).gameObject; // Assuming the first child is the card
         Card cardComponent = cardGO.GetComponent<Card>();
 
         // Get the corresponding CardType (the one linked to the topmost card)
@@ -162,7 +186,7 @@ public class DeckManager : MonoBehaviour
         // Add the card to the player's hand and remove it from the deck (since it's now drawn)
         currentHand.Add(cardType);
         deck.Remove(cardType); // Remove from the deck
-        cardsDrawnThisRound++; // Increment the drawn cards count
+        drawsLeft--; // Increment the drawn cards count
 
         // Set the card visuals (images, etc.)
         cardComponent.SetCardImages(); // Update visuals
@@ -176,6 +200,8 @@ public class DeckManager : MonoBehaviour
             });
 
         // Optionally, you can disable the card's interaction with the pile
+
+        GameManager.instance.drawsText.text = $"{drawsLeft} / 8";
     }
 
 

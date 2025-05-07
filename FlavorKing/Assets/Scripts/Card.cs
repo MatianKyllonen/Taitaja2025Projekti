@@ -18,6 +18,7 @@ public class Card : MonoBehaviour
     public Image backSideImage;
     public Image frontSideImage;
     public bool isUsable;
+    public GameObject cardOutline;
 
     public Sprite[] spritesheet;
 
@@ -35,7 +36,15 @@ public class Card : MonoBehaviour
 
     private void Update()
     {
-        button.interactable = isUsable; // Enable or disable the button based on isUsable
+        if(GameManager.instance.selectedCard == this)
+        {
+            cardOutline.SetActive(true); // Show the outline if this card is selected
+        }
+        else
+        {
+            cardOutline.SetActive(false); // Hide the outline if this card is not selected
+        }
+        button.enabled = isUsable; // Enable or disable the button based on isUsable
     }
 
     public void SetCardImages()
@@ -55,13 +64,28 @@ public class Card : MonoBehaviour
         if (!isUsable)
             return;
 
-        GameManager.instance.SelectCard(this);
-
-        if (GameManager.instance.selectedCard == this)
+        if (GameManager.instance.deckManager.isDiscarding)
+        {
+            if(GameManager.instance.selectedCard == this)
+            {
+                GameManager.instance.selectedCard = null;
+            }
+            else if(GameManager.instance.selectedCard != null)
+            {
+                DiscardCard();
+                GameManager.instance.selectedCard.DiscardCard();
+                GameManager.instance.deckManager.isDiscarding = false;
+                GameManager.instance.deckManager.AddDraw();
+            }
+        }
+        else if (GameManager.instance.selectedCard == this)
         {
             PlayCard();
             AnimateClick();
-        }       
+        }
+
+        GameManager.instance.SelectCard(this);
+      
     }
 
     public void PlayCard()

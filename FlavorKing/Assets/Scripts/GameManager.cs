@@ -42,22 +42,33 @@ public class GameManager : MonoBehaviour
     private void GenerateRandomRecipe()
     {
         // Randomly select a recipe name and required flavor points (just an example)
-        string randomRecipeName = "Dish " + Random.Range(1, 1000);
+        
         int randomFlavorPoints = Random.Range(150, 500); // Random flavor points
 
         // Randomly select an ingredient, technique, seasoning, and tool
         string randomIngredient = GetRandomCardOfCategory(CardCategory.Ingredient)?.cardName ?? "Unknown Ingredient";
-        string randomTechnique = GetRandomCardOfCategory(CardCategory.Technique)?.cardName ?? "";
-        string randomTool = GetRandomCardOfCategory(CardCategory.Tool)?.cardName ?? "";
         string randomSeasoning = GetRandomCardOfCategory(CardCategory.Seasoning)?.cardName ?? "";
+
+        if (Random.Range(1, 100) <= 50)
+        {
+            string randomTool = GetRandomCardOfCategory(CardCategory.Tool)?.cardName ?? "";
+            currentRecipe.requiredTool = randomTool;
+        }
+        if (Random.Range(1, 100) <= 50)
+        {
+            string randomTechnique = GetRandomCardOfCategory(CardCategory.Technique)?.cardName ?? "";
+            currentRecipe.requiredTechnique = randomTechnique;
+        }     
+
+        string randomRecipeName = randomIngredient + " " + randomSeasoning + " " + Random.Range(1, 1000);
 
         // Create the new random recipe
         currentRecipe = ScriptableObject.CreateInstance<RecipeData>();
         currentRecipe.recipeName = randomRecipeName;
         currentRecipe.flavorPointsRequired = randomFlavorPoints;
         currentRecipe.requiredIngredient = randomIngredient;
-        currentRecipe.requiredTechnique = randomTechnique;
-        currentRecipe.requiredTool = randomTool;
+
+        
         currentRecipe.preferredSeasoning = randomSeasoning;
     }
 
