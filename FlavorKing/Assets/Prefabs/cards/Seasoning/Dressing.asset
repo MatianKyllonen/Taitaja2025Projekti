@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Dressing
   m_EditorClassIdentifier: 
   cardName: Dressing
-  cardDescription: Blehhh
-  cardImage: {fileID: 21300000, guid: b71fac9bfa1ffd743827404cd2762834, type: 3}
+  cardDescription: Gives +50 flavor. If ingredient is salted, -25 flavor.
+  cardImage: {fileID: 21300000, guid: 982a6acbb307b06468efb670ad937c90, type: 3}
   category: 1
   cardPrefab: {fileID: 5273985579158004675, guid: c9772c58c32dcf1449a7804bfc3eb38e, type: 3}
