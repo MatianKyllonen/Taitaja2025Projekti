@@ -2,8 +2,6 @@ using UnityEngine;
 
 public class CardEffectManager : MonoBehaviour
 {
-
-
     //when a technique is played, these are used.
     public bool isSalted;
     public bool isSweetened;
@@ -12,16 +10,19 @@ public class CardEffectManager : MonoBehaviour
     public bool isChopped;
     public bool isFried;
     public bool isBoiled;
+    public bool isSeasoned;
 
     //when a tool effect is applied these are used.
     public bool potUsed;
     public bool panUsed;
     public bool knifeUsed;
 
-    //for max meat score you play, pan card, then fry card. Just frying gives score too, but having used the pan to fry gives more
+    //for example, for max meat score, you play pan card, then fry card. Just frying gives score too, but having used the pan to fry gives more
 
     public void ApplySaltEffect()
     {
+        isSeasoned = true;
+
         if (isSalted)
         {
             Debug.Log("Too much salt! No effect.");
@@ -44,6 +45,7 @@ public class CardEffectManager : MonoBehaviour
 
     public void ApplySweetEffect()
     {
+        isSeasoned = true;
         if (isSweetened)
         {
             Debug.Log("Too sweet already. No effect.");
@@ -57,6 +59,7 @@ public class CardEffectManager : MonoBehaviour
 
     public void ApplySpicyEffect()
     {
+        isSeasoned = true;
         if (isSpiced)
         {
             GameManager.instance.AddFlavorPoints(-25);
@@ -71,6 +74,7 @@ public class CardEffectManager : MonoBehaviour
 
     public void ApplyDressingEffect()
     {
+        isSeasoned = true;
         if(isSalted)
         {
             GameManager.instance.AddFlavorPoints(-25);
@@ -84,26 +88,56 @@ public class CardEffectManager : MonoBehaviour
 
     public void ApplyBoilingEffect()
     {
+        isBoiled = true;
+        if(isSeasoned)
+        {
+            GameManager.instance.AddFlavorPoints(50);
+            Debug.Log("Has dressing +50");
+        }
         if (isSalted)
         {
+            if(potUsed)
+            {
+                GameManager.instance.AddFlavorPoints(100);
+                Debug.Log("Salted food and pot used to boil, +100");
+                return;
+            }
+
             GameManager.instance.AddFlavorPoints(50);
             Debug.Log("Boiling + salted! +50 flavor points.");
         }
         else
         {
-            Debug.Log("Boiling alone had no effect.");
-        }
-
-        isBoiled = true;
+            GameManager.instance.AddFlavorPoints(20);
+            Debug.Log("Boiling without pot or salt +20");
+        }       
     }
 
     public void ApplyFryingEffect()
     {
+        isFried = true;
+
+        if(isSeasoned)
+        {          
+            GameManager.instance.AddFlavorPoints(50);
+            Debug.Log("Food was seasoned");
+        }  
+
+        if(isBoiled)
+        {
+            GameManager.instance.AddFlavorPoints(50);
+            Debug.Log("Boilind before frying makes it taste better. +50");
+
+        }
         if(panUsed)
         {
-            isFried = true;
             GameManager.instance.AddFlavorPoints(100);
             Debug.Log("Pan was used to fry, + 100 flavor");
+        }
+        else
+        {           
+            GameManager.instance.AddFlavorPoints(30);
+            Debug.Log("Fried without pan, +30");
         }
     }
 
@@ -112,8 +146,7 @@ public class CardEffectManager : MonoBehaviour
         if(knifeUsed)
         {
             isChopped =true;
-            GameManager.instance.AddFlavorPoints(100);
-            
+            GameManager.instance.AddFlavorPoints(100);            
         }
         else
         {
@@ -126,30 +159,11 @@ public class CardEffectManager : MonoBehaviour
     public void ApplyKnifeEffect()
     {
         knifeUsed = true;
-        
-
-        /*if (isChopped)
-        {
-            GameManager.instance.AddFlavorPoints(30);
-            Debug.Log("Used knife after chopping! +30 flavor points.");
-        }
-        else
-        {
-            Debug.Log("Knife used, but nothing to chop.");
-        } */
     }
 
     public void ApplyPotEffect()
     {
-        if (isBoiled)
-        {
-            GameManager.instance.AddFlavorPoints(40);
-            Debug.Log("Pot used with boiling! +40 flavor points.");
-        }
-        else
-        {
-            Debug.Log("Pot had no effect without boiling.");
-        }
+        potUsed = true;
     }
 
     public void ApplyPanEffect()

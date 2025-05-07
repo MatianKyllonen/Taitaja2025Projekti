@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Pan
   m_EditorClassIdentifier: 
   cardName: Pan
-  cardDescription: Blehhh
-  cardImage: {fileID: 4168832322379371659, guid: a22d96e90ff785f45b28b750cb34c44f, type: 3}
+  cardDescription: Gives more points when used to fry.
+  cardImage: {fileID: 21300000, guid: a22d96e90ff785f45b28b750cb34c44f, type: 3}
   category: 3
   cardPrefab: {fileID: 5273985579158004675, guid: c9772c58c32dcf1449a7804bfc3eb38e, type: 3}
